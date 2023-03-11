@@ -1,0 +1,13 @@
+---
+- name: Get specific device details and retry until stateMachineInstanceCondition is DONE
+  vars:
+    relative_path: "/aegis/rest/v1/device/{{uid}}/specific-device"
+  uri:
+    headers:
+      Authorization: "Bearer {{api_key}}"
+    url: "https://{{cdo_region}}{{relative_path}}"
+    method: "GET"
+  until: "{{specific_device.json.stateMachineDetails.stateMachineInstanceCondition}} == 'DONE'"
+  retries: "{{retries}}"
+  delay: 2
+  register: specific_device_state

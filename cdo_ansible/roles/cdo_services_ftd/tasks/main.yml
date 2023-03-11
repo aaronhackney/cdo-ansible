@@ -1,0 +1,20 @@
+---
+- name: Get specific device details and immediately return results
+  vars:
+    relative_path: "/aegis/rest/v1/services/firepower/ftds/{{specific_uid}}"
+  uri:
+    headers:
+      Authorization: "Bearer {{api_key}}"
+    url: "https://{{cdo_region}}{{relative_path}}"
+    method: "{{method}}"
+    return_content: false
+    body: "{{ payload | to_json }}"
+    body_format: json
+  until: ftd_service.status == 200
+  retries: "{{retries if retries is defined else 1}}"
+  delay: "{{delay if delay is defined else 2}}"
+  register: ftd_service
+
+- name: debug ftd_service result
+  debug: var=ftd_service
+  when: play_debug == true

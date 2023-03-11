@@ -1,0 +1,14 @@
+---
+- name: Get CDO devices
+  vars:
+    relative_path: "/aegis/rest/v1/services/targets/devices{{query}}"
+  uri:
+    headers:
+      Authorization: "Bearer {{api_key}}"
+    url: "https://{{cdo_region}}{{relative_path}}"
+    method: "GET"
+  register: device_data
+
+- name: debug cdo_get_devices
+  debug: msg="device data {{device_data}}"
+  when: play_debug == true

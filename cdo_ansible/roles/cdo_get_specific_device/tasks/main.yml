@@ -1,0 +1,18 @@
+---
+- name: Get specific device details and immediately return results
+  vars:
+    relative_path: "/aegis/rest/v1/device/{{original_uid}}/specific-device"
+  uri:
+    headers:
+      Authorization: "Bearer {{api_key}}"
+      Content-Type: application/json
+    url: "https://{{cdo_region}}{{relative_path}}"
+    method: "GET"
+  until: specific_device.status == 200
+  retries: "{{retries if retries is defined else 1}}"
+  delay: "{{delay if delay is defined else 2}}"
+  register: specific_device
+
+- name: debug specific_device result
+  debug: var=specific_device
+  when: play_debug == true

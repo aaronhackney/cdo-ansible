@@ -1,0 +1,170 @@
+---
+# Run the playbook with either:
+# ansible-playbook onboard_cdo.yml --ask-vault-pass
+# ansible-playbook onboard_cdo.yml --vault-password-file ~/.vault_key
+# Set play_debug == true for extented debugging output in the playbook
+- name: Add Devices to CDO
+  become: false
+  hosts: all
+  connection: local
+
+  tasks:
+    #########################################
+    # Load devices to onboard and API keys
+    - name: Get this devices settings from host varaibles
+      set_fact:
+        play_debug: false
+        cdo_region: "{{hostvars[inventory_hostname]['cdo_region']}}"
+        device_name: "{{inventory_hostname}}"
+        device_type: "{{hostvars[inventory_hostname].device_type | upper if hostvars[inventory_hostname].device_type | upper != 'FTD' else 'FTDC'}}"
+        onboard_method: "{{hostvars[inventory_hostname].onboard_method if hostvars[inventory_hostname].onboard_method is defined}}"
+        serial_number: "{{hostvars[inventory_hostname].serial_number if hostvars[inventory_hostname].serial_number is defined}}"
+        access_control_policy: "{{hostvars[inventory_hostname].access_control_policy if hostvars[inventory_hostname].access_control_policy is defined}}"
+        licenses: "{{ hostvars[inventory_hostname].licenses | join(',') if hostvars[inventory_hostname].licenses is defined}}"
+        performance_tier: "{{hostvars[inventory_hostname].performance_tier if hostvars[inventory_hostname].performance_tier is defined}}"
+        lar_name: "{{hostvars[inventory_hostname].lar_name if hostvars[inventory_hostname].lar_name is defined}}"
+        device_ip: "{{hostvars[inventory_hostname].ip_address if hostvars[inventory_hostname].ip_address is defined}}"
+        device_port: "{{hostvars[inventory_hostname].port if hostvars[inventory_hostname].port is defined}}"
+        username: "{{hostvars[inventory_hostname].username if hostvars[inventory_hostname].username is defined}}"
+        password: "{{hostvars[inventory_hostname].password if hostvars[inventory_hostname].password is defined}}"
+      
+    ###############################################################################
+    # Onboard ASA devcies
+    ###############################################################################
+    - name: Add ASAs to CDO
+      block:
+        - name: Get the SDC/CDG/SEC connector details (query by by name)
+          vars:
+            search_lar_name: "{{lar_name}}"
+          import_role:
+            name: cdo_get_connector
+        
+        - name: create the device in CDO
+          vars:
+            payload:
+              deviceType: ASA
+              host: "{{device_ip}}"
+              ipv4: "{{device_ip}}:{{device_port if device_port is defined else ''}}"
+              larType: "{{ 'CDG' if connector.cdg is true else 'SDC' }}"
+              larUid: "{{connector.uid}}"
+              name: "{{device_name}}"
+              model: false
+              metadata:
+                isNewPolicyObjectModel: true
+          import_role:
+            name: cdo_add_device
+        
+        - name: poll device for connectivity
+          vars:
+            query: "/{{cdo_device.json.uid}}"
+            retries: 6
+            delay: 5
+          import_role:
+            name: cdo_get_device_connectivty_state
+        
+        - name: encrypt device credentials using LAR public key
+          import_role:
+            name: cdo_encrypt_credentials
+        
+        - name: get sepecific device uid
+          vars:
+            original_uid: "{{cdo_device.json.uid}}"
+          import_role:
+            name: cdo_get_specific_device
+        
+        - name: add device credentials
+          vars:
+            specific_uid: "{{specific_device.json.uid}}"
+            payload:
+              state: CERT_VALIDATED
+              credentials: "{{ credentials | to_json}}"
+          import_role:
+            name: cdo_add_asa_credentials
+            
+      when: device_type | upper == "ASA"
+      
+
+      ###############################################################################
+      # Onboard FTD devcies
+      # Note: Today we presume only 1 cdFMC exists. This may change in the future!
+      ###############################################################################
+    - name: Onboard FTD Devices
+      block:
+        - name: Get cdFMC details
+          vars:
+            query: "?q=deviceType:FMCE"
+            uid: "{{device_data.json[0].uid}}"
+          import_role:
+            name: cdo_get_devices
+        
+        - name: get the domain uid of the global domain in cdFMC
+          vars:
+            domain_uid: "{{specific_device.json.domainUid}}"
+            original_uid: "{{uid}}"
+          import_role:
+            name: cdo_get_specific_device
+        
+        - name: Get access policy list from cdFMC
+          vars:
+            cdfmc_hostname: "{{device_data.json[0].host}}"
+            query: "?limit=1000"
+            json_query_string: "[?name==`{{access_control_policy}}`].{name:name, id:id} | [0]"
+            matched_policy: "{{cdfmc_access_policy_list.json['items'] | json_query(json_query_string)}}"
+          import_role:
+            name: cdfmc_get_access_policy_list
+        
+        - name: Fail if policy not found
+          fail: msg="{{access_control_policy}} access policy not found on cdFMC"
+          when: matched_policy | length < 1
+        
+        - name: Add device to cdo
+          vars:
+            payload:
+              "associatedDeviceUid": "{{uid}}"
+              "deviceType": "{{device_type}}"
+              "model": "false"
+              "name": "{{ device_name }}"
+              "state": "new"
+              "type": "devices"
+              "metadata":
+                "accessPolicyName": "{{access_control_policy}}"
+                "accessPolicyUuid": "{{matched_policy.id}}"
+                "license_caps": "{{licenses}}"
+                "performanceTier": "{{performance_tier}}"
+            new_device_uid: "{{cdo_device.json.uid}}"
+          import_role:
+            name: cdo_add_device
+        
+        - name: Get specific device and wait for a 200 status code to be returned
+          vars:
+            specific_device:
+            retries: 5
+            delay: 5
+            original_uid: "{{new_device_uid}}"
+          import_role:
+            name: cdo_get_specific_device
+        
+        - name: Initiate FTD onboarding process
+          vars:
+            specific_uid: "{{specific_device.json.uid}}"
+            method: "PUT"
+            payload:
+              queueTriggerState: INITIATE_FTDC_ONBOARDING
+          import_role:
+            name: cdo_services_ftd
+        
+        - name: Get CLI registration
+          vars:
+            query: "/{{cdo_device.json.uid}}"
+          import_role:
+            name: cdo_get_devices
+          # when: onboard_method | upper == "CLI"
+          # TODO: add LTP onboarding method....
+        
+        - name: see here
+          debug: msg="{{device_data}}"
+        
+        - name: debug Get CLI registration
+          debug: msg="CLI REG {{device_data.json.metadata.generatedCommand}}"
+
+      when: device_type | upper == "FTDC"

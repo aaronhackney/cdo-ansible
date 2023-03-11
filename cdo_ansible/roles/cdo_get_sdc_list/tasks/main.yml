@@ -1,0 +1,15 @@
+---
+- name: Get SDCs
+  vars:
+    relative_path: "/aegis/rest/v1/services/targets/proxies"
+  uri:
+    headers:
+      Authorization: "Bearer {{api_key}}"
+    url: "https://{{cdo_region}}{{relative_path}}"
+    method: "GET"
+    return_content: false
+  register: sdc_list
+
+- name: debug GET SDCs
+  debug: var=sdc_list.json
+  when: play_debug == true

@@ -1,0 +1,12 @@
+---
+cdo_region: www.defenseorchestrator.com
+device_type: FTD
+onboard_method: LTP
+serial_number: abc12345
+access_control_policy: Default Access Control Policy
+licenses:
+  - BASE
+  - THREAT
+  - URLFilter
+  - MALWARE
+  - VPNOnly

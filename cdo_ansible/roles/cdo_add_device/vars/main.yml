@@ -1,0 +1,5 @@
+---
+# ip: IP address device is listening on
+# device_port: port device is listening on
+# device_type: [ASA|GENERIC_SSH]
+#

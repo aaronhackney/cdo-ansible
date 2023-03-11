@@ -1,0 +1,9 @@
+---
+cdo_region: www.defenseorchestrator.com
+device_name: Austin
+ip_address: 172.30.4.101
+port: 8443
+lar_name: CDO_cisco_aahackne-SDC-1
+username: "{{vault_username}}"
+password: "{{vault_password}}"
+device_type: ASA

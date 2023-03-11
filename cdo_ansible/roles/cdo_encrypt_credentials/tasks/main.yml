@@ -1,0 +1,19 @@
+---
+- name: fail if no username or password provided
+  fail: msg="username and password required as playbook input"
+  when: username is undefined or password is undefined or connector.larPublicKey.encodedKey is undefined
+
+- script: "encrypt.py {{ username | regex_escape() }} {{ password | regex_escape() }} {{ connector.larPublicKey.encodedKey }}"
+  register: encrypted_creds
+
+- name: Parse python script output
+  set_fact:
+    credentials: "{{ encrypted_creds.stdout | from_json }}"
+
+- name: Add public key id to the encrypted payload
+  set_fact:
+    credentials: "{{ credentials | combine({'keyId': connector.larPublicKey.keyId}) }}"
+
+- name: debug
+  debug: var=encrypted_creds.stdout
+  when: play_debug == true

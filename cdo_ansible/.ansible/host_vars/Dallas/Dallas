@@ -1,0 +1,11 @@
+---
+cdo_region: www.defenseorchestrator.com
+device_type: FTD
+onboard_method: CLI
+access_control_policy: Default Access Control Policy
+licenses:
+  - BASE
+  - THREAT
+  - URLFilter
+  - MALWARE
+  - PLUS
