@@ -11,7 +11,3 @@
   retries: "{{api_retries if api_retries is defined else 1}}"
   delay: "{{api_delay if api_delay is defined else 2}}"
   register: device_data
-
-- name: debug cdo_get_devices
-  ansible.builtin.debug: msg="device data {{device_data}}"
-  when: play_debug == true

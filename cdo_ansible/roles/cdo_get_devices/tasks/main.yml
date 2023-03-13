@@ -8,7 +8,3 @@
     url: "https://{{cdo_region}}{{relative_path}}"
     method: "GET"
   register: device_data
-
-- name: debug cdo_get_devices
-  ansible.builtin.debug: msg="device data {{device_data}}"
-  when: play_debug == true

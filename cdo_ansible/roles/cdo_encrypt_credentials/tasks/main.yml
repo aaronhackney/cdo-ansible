@@ -13,7 +13,3 @@
 - name: Add public key id to the encrypted payload
   set_fact:
     credentials: "{{ credentials | combine({'keyId': connector.larPublicKey.keyId}) }}"
-
-- name: debug
-  ansible.builtin.debug: var=encrypted_creds.stdout
-  when: play_debug == true

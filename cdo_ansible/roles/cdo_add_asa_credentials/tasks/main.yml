@@ -11,7 +11,3 @@
     body: "{{ payload | to_json }}"
     body_format: json
   register: credentials_added
-
-- name: debug
-  ansible.builtin.debug: var=credentials_added
-  when: play_debug == true

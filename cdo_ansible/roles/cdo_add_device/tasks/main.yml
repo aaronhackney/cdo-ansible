@@ -11,7 +11,3 @@
     body: "{{ payload | to_json }}"
     body_format: json
   register: cdo_device
-
-- name: debug device_add results
-  ansible.builtin.debug: var=cdo_device
-  when: play_debug == true

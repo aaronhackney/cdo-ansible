@@ -9,7 +9,3 @@
     url: "https://{{cdo_region}}{{relative_path}}"
     method: "GET"
   register: cdfmc_access_policy_list
-
-- name: debug access policy list from cdFMC
-  ansible.builtin.debug: var=cdfmc_access_policy_list
-  when: play_debug == true

@@ -24,7 +24,3 @@
 - name: Extract connector from connector_list
   set_fact:
     connector: "{{connector_list[0]}}"
-
-- name: debug get connector
-  ansible.builtin.debug: var=connector
-  when: play_debug == true

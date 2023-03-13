@@ -14,7 +14,3 @@
   retries: "{{api_retries if api_retries is defined else 1}}"
   delay: "{{api_delay if api_delay is defined else 2}}"
   register: ftd_service
-
-- name: debug ftd_service result
-  ansible.builtin.debug: var=ftd_service
-  when: play_debug == true

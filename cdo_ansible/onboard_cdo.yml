@@ -2,7 +2,6 @@
 # Run the playbook with either:
 # ansible-playbook onboard_cdo.yml --ask-vault-pass
 # ansible-playbook onboard_cdo.yml --vault-password-file ~/.vault_key
-# Set play_debug == true for extented debugging output in the playbook
 - name: Add Devices to CDO
   become: false
   hosts: all
@@ -13,7 +12,6 @@
     # Load devices to onboard and API keys
     - name: Get this devices settings from host varaibles
       set_fact:
-        play_debug: false
         cdo_region: "{{hostvars[inventory_hostname]['cdo_region']}}"
         device_name: "{{inventory_hostname}}"
         device_type: "{{hostvars[inventory_hostname].device_type | upper if hostvars[inventory_hostname].device_type | upper != 'FTD' else 'FTDC'}}"
@@ -172,10 +170,7 @@
           # when: onboard_method | upper == "CLI"
           # TODO: add LTP onboarding method....
 
-        - name: see here
-          ansible.builtin.debug: msg="{{device_data}}"
-
         - name: debug Get CLI registration
           ansible.builtin.debug: msg="CLI REG {{device_data.json.metadata.generatedCommand}}"
-
       when: device_type | upper == "FTDC"
+
