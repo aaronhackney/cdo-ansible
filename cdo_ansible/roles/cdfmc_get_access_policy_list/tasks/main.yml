@@ -1,8 +1,8 @@
 ---
 - name: Get access policy list from cdFMC
   vars:
-    relative_path: "/fmc/api/fmc_config/v1/domain/{{domain_uid}}/policy/accesspolicies{{query}}"
-  uri:
+    relative_path: "/fmc/api/fmc_config/v1/domain/{{domain_uid}}/policy/accesspolicies{{api_query}}"
+  ansible.builtin.uri:
     headers:
       Authorization: "Bearer {{api_key}}"
       fmc-hostname: "{{cdfmc_hostname}}"
@@ -11,5 +11,5 @@
   register: cdfmc_access_policy_list
 
 - name: debug access policy list from cdFMC
-  debug: var=cdfmc_access_policy_list
+  ansible.builtin.debug: var=cdfmc_access_policy_list
   when: play_debug == true

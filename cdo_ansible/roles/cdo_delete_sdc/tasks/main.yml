@@ -1,7 +1,7 @@
 - name: Delete a given SDC by name
   vars:
     relative_path: "/aegis/rest/v1/services/targets/proxies/{{sdc_uid[0]}}"
-  uri:
+  ansible.builtin.uri:
     headers:
       Authorization: "Bearer {{api_key}}"
     url: "https://{{cdo_region}}{{relative_path}}"
@@ -10,5 +10,5 @@
   register: deleted_sdc
 
 - name: debug delete sdc
-  debug: var=deleted_sdc
+  ansible.builtin.debug: var=deleted_sdc
   when: play_debug == true

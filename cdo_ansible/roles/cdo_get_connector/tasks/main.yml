@@ -2,7 +2,7 @@
 - name: Get connector (SDC/SEC/CloudSDC) based on name
   vars:
     relative_path: "/aegis/rest/v1/services/targets/proxies"
-  uri:
+  ansible.builtin.uri:
     headers:
       Authorization: "Bearer {{api_key}}"
     url: "https://{{cdo_region}}{{relative_path}}"
@@ -12,13 +12,13 @@
 
 - name: Get specfic SDC based on the SDC/CDG/SEC name (lar_name input paramter)
   vars:
-    query: "json[?name==`{{ search_lar_name }}`]"
+    lar_query: "json[?name==`{{ search_lar_name }}`]"
 
   set_fact:
-    connector_list: "{{ proxies | json_query(query) }}"
+    connector_list: "{{ proxies | json_query(lar_query) }}"
 
 - name: Fail if connector was not found
-  fail: msg="CDG/SDC {{lar_name}} was not found"
+  ansible.builtin.fail: msg="CDG/SDC {{lar_name}} was not found"
   when: "connector_list | length < 1"
 
 - name: Extract connector from connector_list
@@ -26,5 +26,5 @@
     connector: "{{connector_list[0]}}"
 
 - name: debug get connector
-  debug: var=connector
+  ansible.builtin.debug: var=connector
   when: play_debug == true

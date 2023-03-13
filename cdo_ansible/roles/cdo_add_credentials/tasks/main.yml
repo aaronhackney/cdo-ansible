@@ -1,7 +1,7 @@
 ---
 - name: Add device credentials
   vars:
-    relative_path: "/aegis/rest/v1/services/asa/configs/{{specific_uid}}"
+    relative_path: "/aegis/rest/v1/services/targets/devices/{{device_uid}}"
   ansible.builtin.uri:
     headers:
       Authorization: "Bearer {{api_key}}"
@@ -12,6 +12,6 @@
     body_format: json
   register: credentials_added
 
-- name: debug
+- name: debug credentials_added
   ansible.builtin.debug: var=credentials_added
   when: play_debug == true

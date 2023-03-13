@@ -1,0 +1,8 @@
+---
+cdo_region: www.defenseorchestrator.com
+ip_address: 172.30.4.250
+port: 22
+lar_name: CDO_Aaron_Hackney_Lab__Cisco-SDC-1
+username: "{{vault_username}}"
+password: "{{vault_password}}"
+device_type: IOS

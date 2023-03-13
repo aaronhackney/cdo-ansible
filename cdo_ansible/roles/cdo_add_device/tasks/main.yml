@@ -2,7 +2,7 @@
 - name: Add device to CDO
   vars:
     relative_path: "/aegis/rest/v1/services/targets/devices"
-  uri:
+  ansible.builtin.uri:
     headers:
       Authorization: "Bearer {{api_key}}"
     url: "https://{{cdo_region}}{{relative_path}}"
@@ -13,5 +13,5 @@
   register: cdo_device
 
 - name: debug device_add results
-  debug: var=cdo_device
+  ansible.builtin.debug: var=cdo_device
   when: play_debug == true

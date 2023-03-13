@@ -1,6 +1,6 @@
 ---
 - name: fail if no username or password provided
-  fail: msg="username and password required as playbook input"
+  ansible.builtin.fail: msg="username and password required as playbook input"
   when: username is undefined or password is undefined or connector.larPublicKey.encodedKey is undefined
 
 - script: "encrypt.py {{ username | regex_escape() }} {{ password | regex_escape() }} {{ connector.larPublicKey.encodedKey }}"
@@ -15,5 +15,5 @@
     credentials: "{{ credentials | combine({'keyId': connector.larPublicKey.keyId}) }}"
 
 - name: debug
-  debug: var=encrypted_creds.stdout
+  ansible.builtin.debug: var=encrypted_creds.stdout
   when: play_debug == true

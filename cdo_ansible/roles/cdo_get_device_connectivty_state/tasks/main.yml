@@ -1,17 +1,17 @@
 ---
 - name: Get CDO devices
   vars:
-    relative_path: "/aegis/rest/v1/services/targets/devices{{query}}"
-  uri:
+    relative_path: "/aegis/rest/v1/services/targets/devices{{api_query}}"
+  ansible.builtin.uri:
     headers:
       Authorization: "Bearer {{api_key}}"
     url: "https://{{cdo_region}}{{relative_path}}"
     method: "GET"
-  until: device_data.json.connectivityState > -1
-  retries: "{{retries if retries is defined else 1}}"
-  delay: "{{delay if delay is defined else 2}}"
+  until: (device_data.json.connectivityState > -1) or (device_data.json.status == "WAITING_FOR_DATA")
+  retries: "{{api_retries if api_retries is defined else 1}}"
+  delay: "{{api_delay if api_delay is defined else 2}}"
   register: device_data
 
 - name: debug cdo_get_devices
-  debug: msg="device data {{device_data}}"
+  ansible.builtin.debug: msg="device data {{device_data}}"
   when: play_debug == true
