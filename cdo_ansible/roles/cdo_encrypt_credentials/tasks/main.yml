@@ -7,9 +7,9 @@
   register: encrypted_creds
 
 - name: Parse python script output
-  set_fact:
+  ansible.builtin.set_fact:
     credentials: "{{ encrypted_creds.stdout | from_json }}"
 
 - name: Add public key id to the encrypted payload
-  set_fact:
+  ansible.builtin.set_fact:
     credentials: "{{ credentials | combine({'keyId': connector.larPublicKey.keyId}) }}"

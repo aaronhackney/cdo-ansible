@@ -1,0 +1,9 @@
+---
+- name: Add device credentials
+  ansible.builtin.uri:
+    headers: "{{cdo_headers}}"
+    url: "https://{{cdo_region}}{{relative_path}}"
+    method: "PUT"
+    body: "{{ payload | to_json }}"
+    body_format: json
+  register: put_result

@@ -1,0 +1,9 @@
+---
+- name: CDO POST Call
+  ansible.builtin.uri:
+    headers: "{{cdo_headers}}"
+    url: "https://{{cdo_region}}{{relative_path}}"
+    method: "POST"
+    body: "{{ payload | to_json }}"
+    body_format: json
+  register: post_result

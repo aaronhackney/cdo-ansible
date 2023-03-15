@@ -1,0 +1,10 @@
+---
+- name: CDO Generic Get
+  ansible.builtin.uri:
+    headers: "{{cdo_headers}}"
+    url: "https://{{cdo_region}}{{relative_path}}"
+    method: "GET"
+  until: cdo_get.status == 200
+  retries: "{{api_retries if api_retries is defined else 1}}"
+  delay: "{{api_delay if api_delay is defined else 1}}"
+  register: cdo_get
