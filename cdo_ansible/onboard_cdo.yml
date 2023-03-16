@@ -1,15 +1,19 @@
 ---
-# Run the playbook with either:
-# ansible-playbook onboard_cdo.yml --ask-vault-pass
-# ansible-playbook onboard_cdo.yml --vault-password-file ~/.vault_key
+# Playbook to onboard ASA, IOS, and FTD devices into Cisco Defense Orchestrator
+#
+# Run with one of the following
+# ansible-playbook onboard_cdo.yml -i /path/to/inventory --ask-vault-pass
+# ansible-playbook onboard_cdo.yml -i /path/to/inventory --vault-password-file ~/.vault_key
+
 - name: Add Devices to CDO
   become: false
   hosts: all
   connection: local
 
   tasks:
-    #########################################
-    # Load devices to onboard and API keys
+    ###############################################################################
+    # Load devices to onboard, API keys, and needed host facts
+    ###############################################################################
     - name: Get this devices settings from host varaibles
       ansible.builtin.set_fact:
         cdo_region: "{{hostvars[inventory_hostname]['cdo_region']}}"
@@ -27,7 +31,7 @@
         password: "{{hostvars[inventory_hostname].password if hostvars[inventory_hostname].password is defined}}"
 
     ###############################################################################
-    # Onboard ASA or IOS devcies
+    # Onboard ASA and IOS devcies
     ###############################################################################
     - name: Add ASA and IOS to CDO
       block:
@@ -37,11 +41,11 @@
             cdo_headers:
               Authorization: "Bearer {{api_key}}"
             search_lar_name: "{{lar_name}}"
-            proxies: "{{cdo_get}}"
+            proxies: "{{get_result}}"
           ansible.builtin.import_role:
             name: cdo_get
           
-        - name: find specific SDC/CDG/SEC
+        - name: extract specific SDC/CDG/SEC
           vars:
             lar_query: "json[?name==`{{ search_lar_name }}`]"
             connector_list: "{{ proxies | community.general.json_query(lar_query) }}"
@@ -84,15 +88,15 @@
           ansible.builtin.import_role:
             name: cdo_encrypt_credentials
 
-        - name: get sepecific device uid
+        - name: get specific device uid
           vars:
             relative_path: "/aegis/rest/v1/device/{{cdo_device.json.uid}}/specific-device"
             cdo_headers:
               Authorization: "Bearer {{api_key}}"
-            specific_device_uid: "{{cdo_get.json.uid}}"
+            specific_device_uid: "{{get_result.json.uid}}"
           ansible.builtin.import_role:
             name: cdo_get
-          when: device_type | upper == "ASA"
+          when: device_type == "ASA"
           
         - name: add ASA credentials
           vars:
@@ -121,10 +125,10 @@
           
       when: device_type == "ASA" or device_type == "IOS"
 
-      ###############################################################################
-      # Onboard FTD devcies
-      # Note: Today we presume only 1 cdFMC exists. This may change in the future!
-      ###############################################################################
+    ###############################################################################
+    # Onboard FTD devcies
+    # Note: Today we presume only 1 cdFMC exists. This may change in the future!
+    ###############################################################################
     - name: Onboard FTD Devices
       block:         
         - name: Get cdFMC details
@@ -137,19 +141,20 @@
             
         - name: Set hostname and uid of cdFMC
           ansible.builtin.set_fact:
-            fmc_host: "{{cdo_get.json[0].host}}"
-            uid: "{{cdo_get.json[0].uid}}"
+            fmc_host: "{{get_result.json[0].host}}"
+            uid: "{{get_result.json[0].uid}}"
             
         - name: Get the domain uid of the global domain in cdFMC
           vars:
-            original_uid: "{{cdo_get.json[0].uid}}"
+            relative_path: "/aegis/rest/v1/device/{{get_result.json[0].uid}}/specific-device"
           ansible.builtin.import_role:
-            name: cdo_get_specific_device
+            name: cdo_get
             
         - name: set domain_uid
           ansible.builtin.set_fact:
-            domain_uid: "{{specific_device.json.domainUid}}"
-
+            # domain_uid: "{{specific_device.json.domainUid}}"
+            domain_uid: "{{get_result.json.domainUid}}"
+            
         - name: Get access policy list from cdFMC
           vars:        
             relative_path: "/fmc/api/fmc_config/v1/domain/{{domain_uid}}/policy/accesspolicies?limit=1000"
@@ -157,7 +162,7 @@
               Authorization: "Bearer {{api_key}}"
               fmc-hostname: "{{fmc_host}}"
             json_query_string: "[?name==`{{access_control_policy}}`].{name:name, id:id} | [0]"
-            matched_policy: "{{cdo_get.json['items'] | community.general.json_query(json_query_string)}}"
+            matched_policy: "{{get_result.json['items'] | community.general.json_query(json_query_string)}}"
           ansible.builtin.import_role:
             name: cdo_get
         
@@ -188,33 +193,29 @@
         
         - name: Get specific device and wait for a 200 status code to be returned
           vars:
-            specific_device:
+            relative_path: "/aegis/rest/v1/device/{{new_device_uid}}/specific-device"
             api_retries: 5
-            api_delay: 5
-            original_uid: "{{new_device_uid}}"
+            api_delay: 1
           ansible.builtin.import_role:
-            name: cdo_get_specific_device
+            name: cdo_get
 
         - name: Initiate FTD onboarding process
           vars:
-            specific_uid: "{{specific_device.json.uid}}"
-            method: "PUT"
+            relative_path: "/aegis/rest/v1/services/firepower/ftds/{{get_result.json.uid}}"
             payload:
               queueTriggerState: INITIATE_FTDC_ONBOARDING
           ansible.builtin.import_role:
-            name: cdo_services_ftd
+            name: cdo_put
 
         - name: Get CLI registration
           vars:
             relative_path: "/aegis/rest/v1/services/targets/devices/{{new_device_uid}}"
           ansible.builtin.import_role:
             name: cdo_get
-          # when: onboard_method | upper == "CLI"
+          # when: onboard_method == "CLI"
           # TODO: add LTP onboarding method....
 
         - name: debug Get CLI registration
-          ansible.builtin.debug: msg="CLI REG {{cdo_get.json.metadata.generatedCommand}}"
-      when: device_type | upper == "FTDC"
-      ###############################################################################
-      # End FTD Onboarding 
-      ###############################################################################
+          ansible.builtin.debug: msg="CLI Registration\:{{get_result.json.metadata.generatedCommand}}"
+      when: device_type == "FTDC"
+

@@ -2,4 +2,4 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - cdo_delete_sec
+    - cdo_delete

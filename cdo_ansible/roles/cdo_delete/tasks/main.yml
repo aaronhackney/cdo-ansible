@@ -1,0 +1,8 @@
+---
+- name: Generic CDO delete operation
+  ansible.builtin.uri:
+    headers: "{{ cdo_headers }}"
+    url: "https://{{cdo_region}}{{relative_path}}"
+    method: DELETE
+    return_content: false
+  register: cdo_delete_result
