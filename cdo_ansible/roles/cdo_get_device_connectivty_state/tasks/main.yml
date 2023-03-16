@@ -1,7 +1,7 @@
 ---
 - name: Get CDO devices
-  vars:
-    relative_path: "/aegis/rest/v1/services/targets/devices{{api_query}}"
+  # vars:
+  #   relative_path: "/aegis/rest/v1/services/targets/devices{{api_query}}"
   ansible.builtin.uri:
     headers:
       Authorization: "Bearer {{api_key}}"

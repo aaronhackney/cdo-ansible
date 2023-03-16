@@ -78,9 +78,10 @@
         - name: poll device for connectivity
         # TODO make generic get support options "until"
           vars:
-            api_query: "/{{cdo_device.json.uid}}"
-            api_retries: 6
-            api_delay: 5
+            relative_path: "/aegis/rest/v1/services/targets/devices/{{cdo_device.json.uid}}"
+            # api_query: "/{{cdo_device.json.uid}}"
+            api_retries: 5
+            api_delay: 1
           ansible.builtin.import_role:
             name: cdo_get_device_connectivty_state
             
