@@ -1,5 +1,4 @@
 ---
-cdo_region: www.defenseorchestrator.com
 device_name: Austin
 ip_address: 172.30.4.101
 port: 8443

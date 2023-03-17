@@ -1,5 +1,4 @@
 ---
-cdo_region: www.defenseorchestrator.com
 device_name: SanAntonio-ASA
 ip_address: 172.30.4.102
 port: 8443

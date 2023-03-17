@@ -16,7 +16,8 @@
     ###############################################################################
     - name: Get this devices settings from host varaibles
       ansible.builtin.set_fact:
-        cdo_region: "{{hostvars[inventory_hostname]['cdo_region']}}"
+        # api_key: from group_vars
+        # cdo_region: from group_vars
         device_name: "{{inventory_hostname}}"
         device_type: "{{hostvars[inventory_hostname].device_type | upper if hostvars[inventory_hostname].device_type | upper != 'FTD' else 'FTDC'}}"
         onboard_method: "{{hostvars[inventory_hostname].onboard_method if hostvars[inventory_hostname].onboard_method is defined}}"

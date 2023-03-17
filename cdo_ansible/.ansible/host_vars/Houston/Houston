@@ -1,5 +1,4 @@
 ---
-cdo_region: www.defenseorchestrator.com
 ip_address: 172.30.4.103
 port: 8443
 lar_name: CDO_Aaron_Hackney_Lab__Cisco-SDC-1
