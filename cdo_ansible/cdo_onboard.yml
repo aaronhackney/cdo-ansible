@@ -19,13 +19,13 @@
   - name: Hello World!
     ansible.builtin.debug: msg="Groups are {{group_names}} api_key is {{tenant['api_key']}}"
 
-#     ###############################################################################
-#     # Load devices to onboard, API keys, and needed host facts
-#     ###############################################################################
-#     - name: Get this devices settings from host varaibles
-#       ansible.builtin.set_fact:
-#         # api_key: from group_vars
-#         # cdo_region: from group_vars
+  ###############################################################################
+  # Load devices to onboard, API keys, and needed host facts
+  ###############################################################################
+  - name: Get this devices settings from host varaibles
+    ansible.builtin.set_fact:
+      api_key: "{{ tenant['api_key'] }}"
+      cdo_region: "{{ tenant['cdo_region'] }}"
 #         device_name: "{{inventory_hostname}}"
 #         device_type: "{{hostvars[inventory_hostname].device_type | upper if hostvars[inventory_hostname].device_type | upper != 'FTD' else 'FTDC'}}"
 #         onboard_method: "{{hostvars[inventory_hostname].onboard_method if hostvars[inventory_hostname].onboard_method is defined}}"
