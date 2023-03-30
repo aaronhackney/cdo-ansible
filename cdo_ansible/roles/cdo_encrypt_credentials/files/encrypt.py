@@ -13,6 +13,8 @@ def load_package(lib_test, package):
         os.system(f"{sys.executable} -m pip install {package} --user")
     
 def main(username, password, public_key):
+    from Crypto.PublicKey import RSA
+    from Crypto.Cipher import PKCS1_v1_5
     key = RSA.importKey(base64.b64decode(public_key))
     encryptor = PKCS1_v1_5.new(key)
     print(
