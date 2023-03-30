@@ -4,8 +4,6 @@ import pip
 import sys
 import json
 import base64
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_v1_5
 
 def load_package(lib_test, package):
     try:
@@ -33,4 +31,6 @@ if __name__ == "__main__":
     password = sys.argv[2]
     public_key = sys.argv[3]
     load_package("Crypto.PublicKey", "pycryptodome")
+    from Crypto.PublicKey import RSA
+    from Crypto.Cipher import PKCS1_v1_5
     main(username, password, public_key)
