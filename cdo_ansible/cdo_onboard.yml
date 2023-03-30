@@ -224,4 +224,4 @@
         # TODO: add LTP onboarding method....
       - name: debug Get CLI registration
         ansible.builtin.debug: msg="CLI Registration\:{{get_result.json.metadata.generatedCommand}}"
-    when: device_type == "FTDC
+    when: device_type == "FTDC"
