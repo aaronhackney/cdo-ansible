@@ -33,6 +33,4 @@ if __name__ == "__main__":
     public_key = sys.argv[3]
     load_package("Crypto.PublicKey", "pycryptodome")
     time.sleep(5)
-    from Crypto.PublicKey import RSA
-    from Crypto.Cipher import PKCS1_v1_5
     main(username, password, public_key)
