@@ -8,7 +8,7 @@
 
 - name: Add Devices to CDO
   become: false
-  hosts: all
+  hosts: CDO_Aaron_Hackney_Lab__Cisco
   connection: local
 
   tasks:
