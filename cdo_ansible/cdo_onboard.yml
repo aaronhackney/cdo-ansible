@@ -29,10 +29,12 @@
   ###############################################################################
   - name: Get this devices settings from host varaibles
     ansible.builtin.set_fact:
-      api_key: "{{ tenant['api_key'] }}"
-      cdo_region: "{{ tenant['cdo_region'] }}"
-#         device_name: "{{inventory_hostname}}"
-#         device_type: "{{hostvars[inventory_hostname].device_type | upper if hostvars[inventory_hostname].device_type | upper != 'FTD' else 'FTDC'}}"
+      api_key: "{{ tenant.api_key }}"
+      cdo_region: "{{ tenant.cdo_region }}"
+      # api_key: "{{ tenant['api_key'] }}"
+      # cdo_region: "{{ tenant['cdo_region'] }}"
+      # device_name: "{{inventory_hostname}}"
+      # device_type: "{{.device_type | upper if hostvars[inventory_hostname].device_type | upper != 'FTD' else 'FTDC'}}"
 #         onboard_method: "{{hostvars[inventory_hostname].onboard_method if hostvars[inventory_hostname].onboard_method is defined}}"
 #         serial_number: "{{hostvars[inventory_hostname].serial_number if hostvars[inventory_hostname].serial_number is defined}}"
 #         access_control_policy: "{{hostvars[inventory_hostname].access_control_policy if hostvars[inventory_hostname].access_control_policy is defined}}"
