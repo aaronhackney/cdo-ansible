@@ -15,9 +15,14 @@
     ansible.builtin.include_vars:
       file: "tenants/{{group_names[0]}}.yml"
       name: tenant
+      
+  - name: Load the specific device settings based on the inventory host name
+    ansible.builtin.include_vars:
+      file: "devices/{{inventory_hostname}}"
+      name: device
 
   - name: Hello World!
-    ansible.builtin.debug: msg="Groups are {{group_names}} api_key is {{tenant['api_key']}}"
+    ansible.builtin.debug: msg="Groups are {{group_names}} api_key is {{tenant['api_key']}} device info {{device}}"
 
   ###############################################################################
   # Load devices to onboard, API keys, and needed host facts
