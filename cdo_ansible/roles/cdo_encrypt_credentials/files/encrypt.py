@@ -9,7 +9,7 @@ def load_package(lib_test, package):
     try:
         __import__(lib_test)
     except ImportError:
-        os.system(f"{sys.executable} -m pip install {package}")
+        os.system(f"{sys.executable} -m pip install {package} --user")
     
 def main(username, password, public_key):
     key = RSA.importKey(base64.b64decode(public_key))
