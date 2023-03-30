@@ -4,7 +4,6 @@
 # Run with one of the following
 # ansible-playbook onboard_cdo.yml -i /path/to/inventory --ask-vault-pass
 # ansible-playbook onboard_cdo.yml -i /path/to/inventory --vault-password-file ~/.vault_key
-# TODO: Spin up venv for python and add the needed libraries
 
 - name: Add Devices to CDO
   become: false
@@ -12,15 +11,11 @@
   connection: local
 
   tasks:
-  - name: load CDO api tenant key baseed on inventory group membership
+    # Note devices should belong to at *most* 1 tenant group 
+  - name: Load CDO api tenant key and CDO region based on inventory group membership from vault
     ansible.builtin.include_vars:
       file: "tenants/{{group_names[0]}}.yml"
       name: tenant
-      
-  - name: Load the specific device settings based on the inventory host name
-    ansible.builtin.include_vars:
-      file: "devices/{{inventory_hostname}}"
-      name: device
 
   - name: Hello World!
     ansible.builtin.debug: msg="Groups are {{group_names}} api_key is {{tenant['api_key']}} device info {{device}}"
@@ -33,23 +28,34 @@
       device_name: "{{ inventory_hostname }}"
       api_key: "{{ tenant.api_key }}"
       cdo_region: "{{ tenant.cdo_region }}"
-      device_type: "{{ device.device_type | upper if device.device_type | upper != 'FTD' else 'FTDC' }}"
-      onboard_method: "{{ device.onboard_method if device.onboard_method is defined }}"
-      serial_number: "{{ device.serial_number if device.serial_number is defined }}"
-      access_control_policy: "{{ device.access_control_policy if device.access_control_policy is defined}}"
-      licenses: "{{ device.licenses | join(',') if device.licenses is defined }}"
-      performance_tier: "{{ device.performance_tier if device.performance_tier is defined }}"
-      lar_name: "{{ device.lar_name if device.lar_name is defined }}"
-      device_ip: "{{ device.ip_address if device.ip_address is defined }}"
-      device_port: "{{ device.port if device.port is defined }}"
-      username: "{{ device.username if device.username is defined }}"
-      password: "{{ device.password if device.password is defined }}"
+      device_type: "{{ hostvars[inventory_hostname].device_type | upper if hostvars[inventory_hostname].device_type | upper != 'FTD' else 'FTDC' }}"
+      onboard_method: "{{ hostvars[inventory_hostname].onboard_method if hostvars[inventory_hostname].onboard_method is defined }}"
+      serial_number: "{{ hostvars[inventory_hostname].serial_number if hostvars[inventory_hostname].serial_number is defined }}"
+      access_control_policy: "{{ hostvars[inventory_hostname].access_control_policy if hostvars[inventory_hostname].access_control_policy is defined}}"
+      licenses: "{{ hostvars[inventory_hostname].licenses | join(',') if hostvars[inventory_hostname].licenses is defined }}"
+      performance_tier: "{{ hostvars[inventory_hostname].performance_tier if hostvars[inventory_hostname].performance_tier is defined }}"
+      lar_name: "{{ hostvars[inventory_hostname].lar_name if hostvars[inventory_hostname].lar_name is defined }}"
+      device_ip: "{{ hostvars[inventory_hostname].ip_address if hostvars[inventory_hostname].ip_address is defined }}"
+      device_port: "{{ hostvars[inventory_hostname].port if hostvars[inventory_hostname].port is defined }}"
+      # username: "{{ device.username if device.username is defined }}"
+      # password: "{{ device.password if device.password is defined }}"
   
   ###############################################################################
   # Onboard ASA and IOS devcies
   ###############################################################################
   - name: Add ASA and IOS to CDO
     block:
+    
+      - name: Load the credentials from the vault
+        ansible.builtin.include_vars:
+          file: "devices/{{inventory_hostname}}.yml"
+          name: credentials
+          
+      - name: Username and password from vault
+        ansible.builtin.setfact:
+          username: "{{ credentials.username if device.username is defined }}"
+          password: "{{ credentials.password if device.password is defined }}"
+          
       - name: Get list of SDC/CDG/SEC containers
         vars:
           relative_path: /aegis/rest/v1/services/targets/proxies
@@ -66,6 +72,7 @@
           connector_list: "{{ proxies | community.general.json_query(lar_query) }}"
         ansible.builtin.set_fact:
           connector: "{{connector_list[0] if connector_list | length > 0}}"
+          
       - name: Fail if SDC/CDG/SEC was not found
         ansible.builtin.fail: msg="CDG/SDC {{lar_name}} was not found"
         when: "connector|length < 1"
@@ -88,6 +95,7 @@
           cdo_device: "{{post_result}}"
         ansible.builtin.import_role:
           name: cdo_post
+          
       - name: poll device for connectivity
       # TODO make generic get support options "until"
         vars:
@@ -101,6 +109,7 @@
       - name: encrypt device credentials using LAR public key
         ansible.builtin.import_role:
           name: cdo_encrypt_credentials
+          
       - name: get specific device uid
         vars:
           relative_path: "/aegis/rest/v1/device/{{cdo_device.json.uid}}/specific-device"
@@ -122,6 +131,7 @@
         ansible.builtin.import_role:
           name: cdo_put
         when: device_type == "ASA"
+        
       - name: add IOS credentials
         vars:
           cdo_headers:
@@ -134,8 +144,8 @@
         ansible.builtin.import_role:
           name: cdo_put
         when: device_type == "IOS"
-        
     when: device_type == "ASA" or device_type == "IOS"
+
   ###############################################################################
   # Onboard FTD devcies
   # Note: Today we presume only 1 cdFMC exists. This may change in the future!
@@ -180,6 +190,7 @@
       - name: Fail if policy not found
         ansible.builtin.fail: msg="{{access_control_policy}} access policy not found on cdFMC"
         when: matched_policy | length < 1
+        
       - name: Add device to cdo
         vars:
           cdo_headers:
@@ -215,6 +226,7 @@
             queueTriggerState: INITIATE_FTDC_ONBOARDING
         ansible.builtin.import_role:
           name: cdo_put
+          
       - name: Get CLI registration
         vars:
           relative_path: "/aegis/rest/v1/services/targets/devices/{{new_device_uid}}"
@@ -222,6 +234,7 @@
           name: cdo_get
         # when: onboard_method == "CLI"
         # TODO: add LTP onboarding method....
+        
       - name: debug Get CLI registration
         ansible.builtin.debug: msg="CLI Registration\:{{get_result.json.metadata.generatedCommand}}"
     when: device_type == "FTDC"
