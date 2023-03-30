@@ -30,9 +30,9 @@
   ###############################################################################
   - name: Get this devices settings from host varaibles
     ansible.builtin.set_fact:
+      device_name: "{{ inventory_hostname }}"
       api_key: "{{ tenant.api_key }}"
       cdo_region: "{{ tenant.cdo_region }}"
-      device_name: "{{ device.device_name }}"
       device_type: "{{ device.device_type | upper if device.device_type | upper != 'FTD' else 'FTDC' }}"
       onboard_method: "{{ device.onboard_method if device.onboard_method is defined }}"
       serial_number: "{{ device.serial_number if device.serial_number is defined }}"
