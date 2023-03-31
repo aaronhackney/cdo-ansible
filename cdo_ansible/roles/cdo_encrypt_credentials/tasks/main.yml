@@ -3,6 +3,8 @@
   ansible.builtin.fail: msg="username and password required as playbook input"
   when: username is undefined or password is undefined or connector.larPublicKey.encodedKey is undefined
 
+- script: "load_module.py"
+
 - script: "encrypt.py {{ username | regex_escape() }} {{ password | regex_escape() }} {{ connector.larPublicKey.encodedKey }}"
   register: encrypted_creds
 

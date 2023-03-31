@@ -1,0 +1,52 @@
+---
+CDO_cisco_aahackne:
+  hosts:
+    Dallas:
+      device_type: FTD
+      onboard_method: CLI
+      access_control_policy: Default Access Control Policy
+      licenses:
+        - BASE
+        - THREAT
+        - URLFilter
+        - MALWARE
+        - PLUS
+    Austin:
+      device_name: Austin
+      ip_address: 172.30.4.101
+      port: 8443
+      lar_name: CDO_cisco_aahackne-SDC-1
+      device_type: ASA
+      # ASA credentials in /devices vault
+    SanAntonio:
+      device_name: SanAntonio-ASA
+      ip_address: 172.30.4.102
+      port: 8443
+      lar_name: CDO_cisco_aahackne-SDC-1
+      device_type: ASA
+      # ASA credentials in /devices vault
+CDO_Aaron_Hackney_Lab__Cisco:
+  hosts:
+    ElPaso:
+      device_type: FTD
+      onboard_method: LTP
+      serial_number: abc12345
+      access_control_policy: Default Access Control Policy
+      licenses:
+        - BASE
+        - THREAT
+        - URLFilter
+        - MALWARE
+        - VPNOnly
+    Houston:
+      ip_address: 172.30.4.103
+      port: 8443
+      lar_name: CDO_Aaron_Hackney_Lab__Cisco-SDC-1
+      device_type: ASA
+      # ASA credentials in /devices vault
+    Galveston:
+      ip_address: 172.30.4.250
+      port: 22
+      lar_name: CDO_Aaron_Hackney_Lab__Cisco-SDC-1
+      device_type: IOS
+      # IOS credentials in /devices vault
