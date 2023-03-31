@@ -14,7 +14,7 @@
     # Note devices should belong to at *most* 1 tenant group 
   - name: Load CDO api tenant key and CDO region based on inventory group membership from vault
     ansible.builtin.include_vars:
-      file: "tenants/{{group_names[0]}}.yml"
+      file: "tenants/{{ group_names[0] }}.yml"
       name: tenant
 
   ###############################################################################
@@ -80,7 +80,7 @@
           payload:
             deviceType: "{{ device_type }}"
             host: "{{ device_ip }}"
-            ipv4: "{{ device_ip}}:{{device_port if device_port is defined else '' }}"
+            ipv4: "{{ device_ip }}:{{ device_port if device_port is defined else '' }}"
             larType: "{{ 'CDG' if connector.cdg is true else 'SDC' }}"
             larUid: "{{ connector.uid }}"
             name: "{{ device_name }}"
@@ -117,7 +117,7 @@
       - name: add ASA credentials
         vars:
           cdo_headers:
-            Authorization: "Bearer {{api_key}}"
+            Authorization: "Bearer {{ api_key }}"
           relative_path: "/aegis/rest/v1/services/asa/configs/{{ specific_device_uid }}"
           payload:
             state: CERT_VALIDATED
@@ -130,7 +130,7 @@
         vars:
           cdo_headers:
             Authorization: "Bearer {{ api_key }}"
-          relative_path: "/aegis/rest/v1/services/targets/devices/{{cdo_device.json.uid}}"
+          relative_path: "/aegis/rest/v1/services/targets/devices/{{ cdo_device.json.uid }}"
           payload:
             stateMachineContext:
               acceptCert: true
@@ -167,7 +167,6 @@
           
       - name: set domain_uid
         ansible.builtin.set_fact:
-          # domain_uid: "{{specific_device.json.domainUid}}"
           domain_uid: "{{ get_result.json.domainUid }}"
           
       - name: Get access policy list from cdFMC
