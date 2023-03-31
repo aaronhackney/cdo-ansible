@@ -18,7 +18,7 @@
       name: tenant
 
   - name: Hello World!
-    ansible.builtin.debug: msg="Groups are {{group_names}} api_key is {{tenant['api_key']}} device info {{device}}"
+    ansible.builtin.debug: msg="Groups are {{group_names}} api_key is {{tenant['api_key']}}"
 
 #  ###############################################################################
 #  # Load devices to onboard, API keys, and needed host facts
