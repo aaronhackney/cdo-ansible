@@ -7,11 +7,13 @@
 
 - name: Add Devices to CDO
   become: false
-  hosts: CDO_Aaron_Hackney_Lab__Cisco
+  hosts: all
   connection: local
 
   tasks:
     # Note devices should belong to at *most* 1 tenant group 
+    # The host contains the group association so we know which region and API key to use
+    # Change hosts to all and then for loop over each group name
   - name: Load CDO api tenant key and CDO region based on inventory group membership from vault
     ansible.builtin.include_vars:
       file: "tenants/{{ group_names[0] }}.yml"
