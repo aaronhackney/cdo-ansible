@@ -17,9 +17,6 @@
       file: "tenants/{{group_names[0]}}.yml"
       name: tenant
 
-  - name: Hello World!
-    ansible.builtin.debug: msg="Groups are {{group_names}} api_key is {{tenant['api_key']}}"
-
   ###############################################################################
   # Load devices to onboard, API keys, and needed host facts
   ###############################################################################
@@ -55,6 +52,10 @@
         ansible.builtin.set_fact:
           username: "{{ credentials.username if device.username is defined }}"
           password: "{{ credentials.password if device.password is defined }}"
+
+      - name: Hello World!
+        ansible.builtin.debug: msg="Username {{username}} password {{password}}"
+
           
       - name: Get list of SDC/CDG/SEC containers
         vars:
