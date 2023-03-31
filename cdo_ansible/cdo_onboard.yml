@@ -47,7 +47,10 @@
         ansible.builtin.include_vars:
           file: "devices/{{inventory_hostname}}.yml"
           name: credentials
-          
+
+      - name: Hello World!
+        ansible.builtin.debug: msg="Credentials {{credentials}}"
+        
       - name: Username and password from vault
         ansible.builtin.set_fact:
           username: "{{ credentials.username if device.username is defined }}"
