@@ -48,13 +48,13 @@
           file: "devices/{{inventory_hostname}}.yml"
           name: credentials
 
-      - name: Hello World!
+      - name: Credentials
         ansible.builtin.debug: msg="Credentials {{credentials}}"
         
       - name: Username and password from vault
         ansible.builtin.set_fact:
-          username: "{{ credentials.username if device.username is defined }}"
-          password: "{{ credentials.password if device.password is defined }}"
+          username: "{{ credentials.username if credentials.username is defined }}"
+          password: "{{ credentials.password if credentials.password is defined }}"
 
       - name: Hello World!
         ansible.builtin.debug: msg="Username {{username}} password {{password}}"
