@@ -22,7 +22,7 @@ ansible-vault encrypt_string 'abc1234567890asdfgh' --name 'api_key' --vault-pass
 ```
 
 ### Tenants File Example
-Copy the output to a file with the EXACT same name as your CDO Tenant (CDO tenant name can be found in CDO under Settings --> General Settings under `Tenant Name`)
+Copy the output to a file with the same name as your CDO Tenant (CDO tenant name can be found in CDO under Settings --> General Settings under `Tenant Name`)
 
 Sample File:
 `tenants/CDO_My_Tenant.yml`

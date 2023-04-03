@@ -12,7 +12,7 @@ This is an assortment of roles, scripts, sample inventory, and playbooks for int
 ## Secrets and Inventory
 We are stashing vaulted secrets in the `tenants` and `devices` directories and importing them into the playbook at runtime by providing the vault-key at runtime. 
 
-I have provided some sample inventory and tenant/device secrets in this repo. While these credentials are encypted, in a "real" production system, one would not want to have those vault secrets stored in a CVS system like github, even though they are encryted. Again, they are here for demonstration purposes only.
+We have provided some sample inventory and tenant/device secrets in this repo. While these credentials are encypted, in a "real" production system, one would not want to have those vault secrets stored in a CVS system like github, even though they are encryted. Again, they are here for demonstration purposes only.
 
 ## Using the Ansible CLI
 Once you have ansible-vault encrypted your API key and ASA/IOS passwords and put them in the appropriate files in `tenants` and `devices` and created your inventory file `inventory`, all that is left is to run the playbook. Here is an example of how one might call the file.

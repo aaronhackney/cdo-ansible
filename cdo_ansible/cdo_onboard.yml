@@ -22,7 +22,7 @@
     ###############################################################################
     # Load devices to onboard, API keys, and needed host facts
     ###############################################################################
-    - name: Get this devices settings from host varaibles
+    - name: Get this devices settings from host variables
       ansible.builtin.set_fact:
         device_name: "{{ inventory_hostname }}"
         api_key: "{{ tenant.api_key }}"
