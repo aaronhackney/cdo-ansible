@@ -4,10 +4,10 @@ We are stashing vaulted secrets in the `tenants` and `devices` directories and i
 We have provided some sample inventory and tenant/device secrets in this repo. While these credentials are encypted, in a "real" production system, one would not want to have those vault secrets stored in a CVS system like github, even though they are encryted. Again, they are here for demonstration purposes only.
 
 ## Devices File
-This file is only required for ASA and IOS devices. FTD devices do not need a device file. For ASA and IOS files, this is a .yml file with the same name as your CDO Tenant. Your CDO tenant name can be found in CDO under Settings --> General Settings under `Tenant Name`
+This file is only required for ASA and IOS devices. FTD devices do not need a device file. For ASA and IOS files, this is a .yml file with the same name as the host that you have defined in the inventory file (CLI ansible) or the inventory in Ansible AWX/Tower.
 
 ### Devices keys
-The tenants file has 2 keys: 
+The device file has 2 keys: 
 `username` - The administrative username used to log into your ASA or IOS device. 
 `password` - The administrative password used to log into your ASA or IOS device. 
 
@@ -21,7 +21,7 @@ ansible-vault encrypt_string 'abc1234567890asdfgh' --name 'password' --vault-pas
 ```
 
 ### Devices File Example
-Copy the output to a .yml file with the same name as the host that you have defines in the inventory file (CLI ansible) or the inventory in Ansible AWX/Tower.
+Copy the output to a .yml file with the same name as the host that you have defined in the inventory file (CLI ansible) or the inventory in Ansible AWX/Tower.
 
 Sample File:
 `devices/SanAntonio.yml`

@@ -9,11 +9,11 @@ This is a .yml file with the same name as your CDO Tenant. Your CDO tenant name 
 ### Tenant keys
 The tenants file has 2 keys: 
 `cdo_region` - the region where your CDO tenant resides. At this time, the regions are:
-- www.defenseorchestrator.com
-- www.defenseorchestrator.eu
-- apj.cdo.cisco.com
+- `www.defenseorchestrator.com`
+- `www.defenseorchestrator.eu`
+- `apj.cdo.cisco.com`
 
-`api_key` - The CDO API generate in CDO under Settings --> User Management. This key can either be vault encrypted (recommended) or in clear text.
+`api_key` - The CDO API key generated in CDO under Settings --> User Management. This key can either be vault encrypted (recommended) or in clear text.
 
 ### How to encrypt strings in ansible
 To encrypt your credentials, use the CLI vault tool from ansible. In the below example, `abc1234567890asdfgh` is your CDO API key and `~/.vault_key` is your vault key. Note that you could also use `--ask-vault-password` to be prompted for the password instead. See `ansible-vault encrypt_string --help` for more details.
